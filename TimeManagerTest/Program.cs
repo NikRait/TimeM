@@ -59,6 +59,7 @@ namespace TimeManagerTest
                     }
                 }
             }
+            System.Console.WriteLine("KYS");
             var count = "";
             var loopMainDecision2 = 1;
             string yourActivity;

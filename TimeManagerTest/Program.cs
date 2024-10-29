@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-
+using System.Diagnostics;
 
 namespace TimeManagerTest
 {
@@ -8,8 +9,9 @@ namespace TimeManagerTest
     {
         public static void Main(string[] args)
         {
-            var user = new User("/", "/", "/", "/", "/", "/", "/", "/", "/", "/");
+            var user = new User("/");
             var watch = new Timer();
+            var listOfActs = new List<string>();
             Console.WriteLine("Do you have saved user Name?");
             Console.WriteLine("1 - Yes, I wanna Log in; 2 - No I wanna Sign in");
             int answerAboutAccount = 0;
@@ -35,7 +37,7 @@ namespace TimeManagerTest
                 {
                     try
                     {
-                        user.StreamRead();
+                        user.StreamRead(listOfActs);
                         fileCheck = 0;
                     }
                     catch (FileNotFoundException)
@@ -49,7 +51,7 @@ namespace TimeManagerTest
                 {
                     try
                     {
-                        user.StreamWrite();
+                        user.StreamWrite(listOfActs);
                         fileCheck = 0;
                     }
                     catch (Exception e)
@@ -59,10 +61,9 @@ namespace TimeManagerTest
                     }
                 }
             }
-            System.Console.WriteLine("KYS");
-            var count = "";
             var loopMainDecision2 = 1;
-            string yourActivity;
+            string currentActivity;
+            var currentListOfActs = new List<string>();
             while (loopMainDecision2 != 0)
             {
                 var loopMainDecision1 = 0;
@@ -75,74 +76,18 @@ namespace TimeManagerTest
                     {
                         Console.WriteLine("Please enter the correct value.");
                     }
-                    else if (resultMainDecision < 0 || resultMainDecision > 9)
-                    {
-                        Console.WriteLine("Please enter the correct value.");
-                    }
                     else
                     {
                         try
                         {
-                            
-                            switch (resultMainDecision)
-                            {
-                                case 1:
-                                    yourActivity = user.firstActivity;
-                                    count += "1";
-                                    watch.Activity(user, watch.stopWatch1, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                case 2 when user.secondActivity != "/":
-                                    yourActivity = user.secondActivity;
-                                    count += "2";
-                                    watch.Activity(user, watch.stopWatch2, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                case 3 when user.thirdActivity != "/":
-                                    yourActivity = user.thirdActivity;
-                                    count += "3";
-                                    watch.Activity(user, watch.stopWatch3, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                case 4 when user.fourthActivity != "/":
-                                    yourActivity = user.fourthActivity;
-                                    count += "4";
-                                    watch.Activity(user, watch.stopWatch4, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                case 5 when user.fifthActivity != "/":
-                                    yourActivity = user.fifthActivity;
-                                    count += "5";
-                                    watch.Activity(user, watch.stopWatch5, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                case 6 when user.sixthActivity != "/":
-                                    yourActivity = user.sixthActivity;
-                                    count += "6";
-                                    watch.Activity(user, watch.stopWatch6, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                case 7 when user.seventhActivity != "/":
-                                    yourActivity = user.seventhActivity;
-                                    count += "7";
-                                    watch.Activity(user, watch.stopWatch7, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                case 8 when user.eighthActivity != "/":
-                                    yourActivity = user.eighthActivity;
-                                    count += "8";
-                                    watch.Activity(user, watch.stopWatch8, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                case 9 when user.ninthActivity != "/":
-                                    yourActivity = user.ninthActivity;
-                                    count += "9";
-                                    watch.Activity(user, watch.stopWatch9, yourActivity);
-                                    loopMainDecision1 = 1;
-                                    break;
-                                default:
-                                    throw new NoMoreActException("You don't have this count of activities");
-                            }
+                            currentActivity = listOfActs[--resultMainDecision];
+                            currentListOfActs.Add(currentActivity);
+                            watch.Activity(user, currentActivity);
+                            loopMainDecision1 = 1;
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            Console.WriteLine("You don't have this count of activities");
                         }
                         catch (NoMoreActException ex)
                         {
@@ -169,71 +114,29 @@ namespace TimeManagerTest
                     }
                     else
                     {
-                        string actCount = "";
-                        char[] realCount = new char[count.Length];
-                        var number = 0;
-                        foreach (var item in count)
+                        var repeatList = new List<string>();
+                        int index = 0;
+                        for (int i = 0; i < currentListOfActs.Count; i++)
                         {
-                            realCount[number] = item;
-                            number++;
-                        }
-                        for (int k = 0; k < realCount.Length; k++)
-                        {
-                            var repeatCheck = false;
-                            foreach (var item in actCount)
+                            var repeat = false;
+                            foreach (var item in repeatList)
                             {
-                                if (item == realCount[k])
+                                if (item == currentListOfActs[i])
                                 {
-                                    repeatCheck = true;
+                                    repeat = true;
                                 }
-                                else if (repeatCheck == true)
+                                else if (repeat == true)
                                 {
 
                                 }
                                 else
-                                    repeatCheck = false;
+                                    repeat = false;
                             }
-                            if (repeatCheck == false)
+                            repeatList.Add(currentListOfActs[i]);
+                            if (repeat == false)
                             {
-                                switch (realCount[k])
-                                {
-                                    case '1':
-                                        Console.WriteLine($"By doing {user.firstActivity} you have spent {watch.stopWatch1.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "1";
-                                        break;
-                                    case '2':
-                                        Console.WriteLine($"By doing {user.secondActivity} you have spent {watch.stopWatch2.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "2";
-                                        break;
-                                    case '3':
-                                        Console.WriteLine($"By doing {user.thirdActivity} you have spent {watch.stopWatch3.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "3";
-                                        break;
-                                    case '4':
-                                        Console.WriteLine($"By doing {user.fourthActivity} you have spent {watch.stopWatch4.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "4";
-                                        break;
-                                    case '5':
-                                        Console.WriteLine($"By doing {user.fifthActivity} you have spent {watch.stopWatch5.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "5";
-                                        break;
-                                    case '6':
-                                        Console.WriteLine($"By doing {user.sixthActivity} you have spent {watch.stopWatch6.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "6";
-                                        break;
-                                    case '7':
-                                        Console.WriteLine($"By doing {user.seventhActivity} you have spent {watch.stopWatch7.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "7";
-                                        break;
-                                    case '8':
-                                        Console.WriteLine($"By doing {user.eighthActivity} you have spent {watch.stopWatch8.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "8";
-                                        break;
-                                    case '9':
-                                        Console.WriteLine($"By doing {user.ninthActivity} you have spent {watch.stopWatch9.Elapsed:hh\\:mm\\:ss\\.ff}");
-                                        actCount += "9";
-                                        break;
-                                }
+                                Console.WriteLine($"By {currentListOfActs[index]} you have spent {Timer.listOfWatches[index].Elapsed:hh\\:mm\\:ss\\.ff}");
+                                index++;
                             }
                             else
                             {

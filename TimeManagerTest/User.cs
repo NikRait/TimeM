@@ -53,10 +53,11 @@ namespace TimeManagerTest
             {
                 int loop = 1;
                 int i = 0;
-                if (name == "/")
+                using (var sw = new StreamWriter("User.txt"))
                 {
-                    using (StreamWriter sw = new StreamWriter("User.txt"))
+                    if(name == "/")
                     {
+
                         Console.WriteLine("Please enter your user Name");
                         int userNameLoop = 0;
                         while (userNameLoop != 1)
@@ -90,10 +91,19 @@ namespace TimeManagerTest
                                 listOfActs.Add(sentence);
                                 sw.WriteLine(sentence);
                             }
-                           
+
                         }
                     }
-                }
+                    else
+                    {
+                        sw.WriteLine(name);
+                        Console.WriteLine(name);
+                        foreach (var act in listOfActs)
+                        {
+                            sw.WriteLine(act);
+                        }
+                    }
+                }      
             }
             catch (Exception e)
             {

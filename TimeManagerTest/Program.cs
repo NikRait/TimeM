@@ -14,71 +14,16 @@ namespace TimeManagerTest
             Console.WriteLine("Do you have saved user Name?");
             Console.WriteLine("1 - Yes, I wanna Log in; 2 - No I wanna Sign in; 3 - I wanna add new activity; 4 - I wanna edit activity");
             int answerAboutAccount = 0;
-            int fileCheck = 1;
-            while (fileCheck != 0)
-            {
-                bool checkAccount = int.TryParse(Console.ReadLine(), out answerAboutAccount);
-                while (answerAboutAccount != 1 && answerAboutAccount != 2 && answerAboutAccount != 3 && answerAboutAccount != 4)
-                {
-                    if (checkAccount == false)
-                    {
-                        Console.WriteLine("Please enter correct value");
-                    }
-                    else
-                    {
-                        if (answerAboutAccount <= 0 || answerAboutAccount >= 5)
-                        {
-                            Console.WriteLine("Please enter correct value");
-                        }
-                    }
-                }
-                switch (answerAboutAccount)
-                {
-                    case 1:
-                        try
-                        {
-                            user.StreamRead(listOfActs);
-                            fileCheck = 0;
-                        }
-                        catch (FileNotFoundException)
-                        {
-                            Console.WriteLine("You don't have an account yet. Please sign in before.");
-                            fileCheck = 1;
-                        }
-                        break;
-                    case 2:
-                        try
-                        {
-                            user.StreamWrite(listOfActs);
-                            fileCheck = 0;
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                            fileCheck = 1;
-                        }
-                        break;
-                    case 3:
-                        user.StreamRead(listOfActs);
-                        AddAct(listOfActs, user);
-                        fileCheck = 0;
-                        break;
-                    default:
-                        user.StreamRead(listOfActs);
-                        EditActs(listOfActs, user);
-                        fileCheck = 0;
-                        break;
-                }
-            }
-            
-            var loopMainDecision2 = 1;
+            bool fileCheck = true;
+            user.BeforeActivities(fileCheck, answerAboutAccount, listOfActs, user);
+            var loopMainDecision2 = true;
             string currentActivity;
             var currentListOfActs = new List<string>();
-            while (loopMainDecision2 != 0)
+            while (loopMainDecision2)
             {
-                var loopMainDecision1 = 0;
+                var loopMainDecision1 = true;
                 Console.WriteLine("What kind of activity do you wanna do now?");
-                while (loopMainDecision1 != 1)
+                while (loopMainDecision1)
                 {
                     string mainDecision = Console.ReadLine();
                     bool checkInTimer = int.TryParse(mainDecision, out var resultMainDecision);
@@ -93,7 +38,7 @@ namespace TimeManagerTest
                             currentActivity = listOfActs[--resultMainDecision];
                             currentListOfActs.Add(currentActivity);
                             watch.Activity(user, currentActivity);
-                            loopMainDecision1 = 1;
+                            loopMainDecision1 = false;
                         }
                         catch (ArgumentOutOfRangeException)
                         {
@@ -154,13 +99,13 @@ namespace TimeManagerTest
                             }
                         }
                         Console.ReadLine();
-                        loopMainDecision2 = 0;
+                        loopMainDecision2 = false;
                         break;
                     }
                 }
             }
         }
-        private static void EditActs(List<string> listOfActs, User user)
+        internal static void EditActs(List<string> listOfActs, User user)
         {
             bool isItOver = true;
             while (isItOver)
@@ -222,7 +167,7 @@ namespace TimeManagerTest
                 i++;
             }
         }
-        private static void AddAct(List<string> listOfActs, User user)
+        internal static void AddAct(List<string> listOfActs, User user)
         {
             bool isItNotOver = true;
             do

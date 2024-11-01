@@ -110,5 +110,64 @@ namespace TimeManagerTest
                 Console.WriteLine("Exception: " + e.Message);
             }
         }
+        public void BeforeActivities(bool fileCheck, int answerAboutAccount, List<string> listOfActs, User user)
+        {
+            while (fileCheck)
+            {
+                bool checkAccount = int.TryParse(Console.ReadLine(), out answerAboutAccount);
+                while (answerAboutAccount != 1 && answerAboutAccount != 2 && answerAboutAccount != 3 && answerAboutAccount != 4)
+                {
+                    if (checkAccount == false)
+                    {
+                        Console.WriteLine("Please enter correct value");
+                    }
+                    else
+                    {
+                        if (answerAboutAccount <= 0 || answerAboutAccount >= 5)
+                        {
+                            Console.WriteLine("Please enter correct value");
+                        }
+                    }
+                }
+                switch (answerAboutAccount)
+                {
+                    case 1:
+                        try
+                        {
+                            user.StreamRead(listOfActs);
+                            fileCheck = false;
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            Console.WriteLine("You don't have an account yet. Please sign in before.");
+                            fileCheck = true;
+                        }
+                        break;
+                    case 2:
+                        try
+                        {
+                            user.StreamWrite(listOfActs);
+                            fileCheck = false;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            fileCheck = true;
+                        }
+                        break;
+                    case 3:
+                        user.StreamRead(listOfActs);
+                        Program.AddAct(listOfActs, user);
+                        fileCheck = false;
+                        break;
+                    default:
+                        user.StreamRead(listOfActs);
+                        Program.EditActs(listOfActs, user);
+                        fileCheck = false;
+                        break;
+                }
+            }
+
+        }
     }
 }

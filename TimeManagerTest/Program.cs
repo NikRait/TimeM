@@ -90,7 +90,7 @@ namespace TimeManagerTest
                             repeatList.Add(currentListOfActs[i]);
                             if (repeat == false)
                             {
-                                Console.WriteLine($"By {currentListOfActs[index]} you have spent {Timer.listOfWatches[index].Elapsed:hh\\:mm\\:ss\\.ff}");
+                                Console.WriteLine($"By {currentListOfActs[i]} you have spent {Timer.listOfWatches[index].Elapsed:hh\\:mm\\:ss\\.ff}");
                                 index++;
                             }
                             else

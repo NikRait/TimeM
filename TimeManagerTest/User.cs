@@ -20,6 +20,7 @@ namespace TimeManagerTest
                 int i = 0;
                 using (StreamReader sr = new StreamReader("User.txt"))
                 {
+                    listOfActs.Clear();
                     while (loopCheck != 0)
                     {
                         line = sr.ReadLine();
@@ -34,6 +35,7 @@ namespace TimeManagerTest
                         }
                         else
                         {
+                            
                             listOfActs.Add(line);
                             Console.WriteLine($"{i} - {line}");
                         }
@@ -53,7 +55,7 @@ namespace TimeManagerTest
             {
                 int loop = 1;
                 int i = 0;
-                using (var sw = new StreamWriter("User.txt"))
+                using (var sw = new StreamWriter("User.txt", false))
                 {
                     if(name == "/")
                     {
@@ -103,32 +105,24 @@ namespace TimeManagerTest
                             sw.WriteLine(act);
                         }
                     }
-                }      
+                }
+                Console.Clear();
             }
             catch (Exception e)
             {
                 Console.WriteLine("Exception: " + e.Message);
             }
         }
-        public void BeforeActivities(bool fileCheck, int answerAboutAccount, List<string> listOfActs, User user)
+        public void BeforeActivities(ref bool fileCheck, List<string> listOfActs, User user)
         {
             while (fileCheck)
             {
-                bool checkAccount = int.TryParse(Console.ReadLine(), out answerAboutAccount);
-                while (answerAboutAccount != 1 && answerAboutAccount != 2 && answerAboutAccount != 3 && answerAboutAccount != 4)
-                {
-                    if (checkAccount == false)
-                    {
-                        Console.WriteLine("Please enter correct value");
-                    }
-                    else
-                    {
-                        if (answerAboutAccount <= 0 || answerAboutAccount >= 5)
-                        {
-                            Console.WriteLine("Please enter correct value");
-                        }
-                    }
-                }
+                Console.SetCursorPosition(37, 0);
+                Console.WriteLine("Memento Mori");
+                Console.WriteLine("Do you have saved user Name?");
+                Console.WriteLine("1 - Log in; 2 - Sign up; 3 - Add new activity; 4 - Edit activity, 5 - Delete activity");
+                int answerAboutAccount = 0;
+                answerAboutAccount = answerAboutAccount.TryParse(Console.ReadLine(), 1, 5);
                 switch (answerAboutAccount)
                 {
                     case 1:
@@ -147,7 +141,6 @@ namespace TimeManagerTest
                         try
                         {
                             user.StreamWrite(listOfActs);
-                            fileCheck = false;
                         }
                         catch (Exception e)
                         {
@@ -157,17 +150,104 @@ namespace TimeManagerTest
                         break;
                     case 3:
                         user.StreamRead(listOfActs);
-                        Program.AddAct(listOfActs, user);
-                        fileCheck = false;
+                        AddAct(listOfActs, user);
+                        //fileCheck = false;
+                        break;
+                    case 4:
+                        user.StreamRead(listOfActs);
+                        EditActs(listOfActs, user);
                         break;
                     default:
                         user.StreamRead(listOfActs);
-                        Program.EditActs(listOfActs, user);
-                        fileCheck = false;
+                        DeleteAct(listOfActs, user);
+                        //fileCheck = false;
                         break;
                 }
             }
-
+        }
+        private static void EditActs(List<string> listOfActs, User user)
+        {
+            bool isItOver = true;
+            while (isItOver)
+            {
+                Console.WriteLine("Which activity do you wanna change?");
+                int choice = 1;
+                choice = choice.TryParse(Console.ReadLine(), 1, listOfActs.Count);
+                Console.Write("Write down new activity: ");
+                listOfActs[--choice] = Console.ReadLine();
+                Console.WriteLine("Is it over? 1 - yes, 2 - no");
+                string answer = Console.ReadLine();
+                bool isValidValue = true;
+                IsValidValue(ref isValidValue, ref isItOver, ref answer);
+            }
+            user.StreamWrite(listOfActs);
+            Console.Clear();
+        }
+        private static void AddAct(List<string> listOfActs, User user)
+        {
+            bool isItNotOver = true;
+            do
+            {
+                Console.Write("Write new activity: ");
+                using (var sw = new StreamWriter("User.txt"))
+                {
+                    string newAct = Console.ReadLine();
+                    listOfActs.Add(newAct);
+                    sw.WriteLine(newAct);
+                }
+                Console.WriteLine("Is it over? 1 - yes, 2 - no");
+                string answer = Console.ReadLine();
+                bool isValidValue = true;
+                IsValidValue(ref isValidValue, ref isItNotOver, ref answer);
+            } while (isItNotOver);
+            user.StreamWrite(listOfActs);
+            Console.Clear();
+        }
+        private static void DeleteAct(List<string> listOfActs, User user)
+        {
+            bool isItNotOver = true;
+            while (isItNotOver)
+            {
+                Console.WriteLine("Which activity do you want to delete");
+                int numberOfAct = 0;
+                numberOfAct = numberOfAct.TryParse(Console.ReadLine(), 1, listOfActs.Count);
+                listOfActs.RemoveAt(--numberOfAct);
+                Console.WriteLine("Is it over? 1 - yes, 2 - no");
+                string answer = Console.ReadLine();
+                bool isValidValue = true;
+                IsValidValue(ref isValidValue, ref isItNotOver, ref answer);
+            }
+            user.StreamWrite(listOfActs);
+            Console.Clear();
+        }
+        private static void IsValidValue(ref bool isValidValue, ref bool isItNotOver, ref string answer)
+        {
+            while (isValidValue)
+            {
+                if (int.TryParse(answer, out int choice))
+                {
+                    if (choice == 1)
+                    {
+                        isItNotOver = false;
+                        isValidValue = false;
+                    }
+                    else if (choice == 2)
+                    {
+                        isItNotOver = true;
+                        isValidValue = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Enter Correct value");
+                        answer = Console.ReadLine();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Enter Correct value");
+                    answer = Console.ReadLine();
+                }
+            }
         }
     }
 }

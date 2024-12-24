@@ -11,42 +11,34 @@ namespace TimeManagerTest
             var user = new User("/");
             var watch = new Timer();
             var listOfActs = new List<string>();
-            Console.WriteLine("Do you have saved user Name?");
-            Console.WriteLine("1 - Yes, I wanna Log in; 2 - No I wanna Sign in; 3 - I wanna add new activity; 4 - I wanna edit activity");
-            int answerAboutAccount = 0;
             bool fileCheck = true;
-            user.BeforeActivities(fileCheck, answerAboutAccount, listOfActs, user);
-            var loopMainDecision2 = true;
+            while (fileCheck != false)
+            {
+                user.BeforeActivities(ref fileCheck, listOfActs, user);
+            }
+            
+            var isItNotEndOfRun = true;
             string currentActivity;
             var currentListOfActs = new List<string>();
-            while (loopMainDecision2)
+            while (isItNotEndOfRun)
             {
-                var loopMainDecision1 = true;
+                var isItNotRightAvtivity = true;
                 Console.WriteLine("What kind of activity do you wanna do now?");
-                while (loopMainDecision1)
+                while (isItNotRightAvtivity)
                 {
-                    string mainDecision = Console.ReadLine();
-                    bool checkInTimer = int.TryParse(mainDecision, out var resultMainDecision);
-                    if (checkInTimer == false)
-                    {
-                        Console.WriteLine("Please enter the correct value.");
-                    }
-                    else
+                    int resultMainDecision = 0;
+                    resultMainDecision = resultMainDecision.TryParse(Console.ReadLine());
                     {
                         try
                         {
                             currentActivity = listOfActs[--resultMainDecision];
                             currentListOfActs.Add(currentActivity);
                             watch.Activity(user, currentActivity);
-                            loopMainDecision1 = false;
+                            isItNotRightAvtivity = false;
                         }
                         catch (ArgumentOutOfRangeException)
                         {
                             Console.WriteLine("You don't have this count of activities");
-                        }
-                        catch (NoMoreActException ex)
-                        {
-                            Console.WriteLine(ex.Message);
                         }
                     }
                 }
@@ -54,187 +46,51 @@ namespace TimeManagerTest
                 int result = 10;
                 while (result != 1)
                 {
-                    var decisionAfterEndOfActivity = int.TryParse(Console.ReadLine(), out result);
-                    if (decisionAfterEndOfActivity == false)
-                    {
-                        Console.WriteLine("Please enter the correct value");
-                        result = 10;
-                    }
-                    else if (result < 0 || result > 1)
-                    {
-                        Console.WriteLine("Please enter the correct value");
-                    }
-                    else if (result == 1)
+                    result = result.TryParse(Console.ReadLine(), 0, 1);
+                    if (result == 1)
                     {
                     }
                     else
                     {
-                        var repeatList = new List<string>();
-                        int index = 0;
-                        for (int i = 0; i < currentListOfActs.Count; i++)
-                        {
-                            var repeat = false;
-                            foreach (var item in repeatList)
-                            {
-                                if (item == currentListOfActs[i])
-                                {
-                                    repeat = true;
-                                }
-                                else if (repeat == true)
-                                {
-
-                                }
-                                else
-                                    repeat = false;
-                            }
-                            repeatList.Add(currentListOfActs[i]);
-                            if (repeat == false)
-                            {
-                                Console.WriteLine($"By {currentListOfActs[i]} you have spent {Timer.listOfWatches[index].Elapsed:hh\\:mm\\:ss\\.ff}");
-                                index++;
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                        }
+                        SumUp(currentListOfActs);
                         Console.ReadLine();
-                        loopMainDecision2 = false;
+                        isItNotEndOfRun = false;
                         break;
                     }
                 }
             }
         }
-        internal static void EditActs(List<string> listOfActs, User user)
+        private static void SumUp(List<string> currentListOfActs)
         {
-            bool isItOver = true;
-            while (isItOver)
+            var repeatList = new List<string>();
+            int index = 0;
+            for (int i = 0; i < currentListOfActs.Count; i++)
             {
-                Console.WriteLine("Which activity do you wanna change?");
-                int choice = 1;
-                while (choice > 0 && choice < listOfActs.Count)
+                var repeat = false;
+                foreach (var item in repeatList)
                 {
-                    choice = TryParse(Console.ReadLine());
-                    if (choice > listOfActs.Count || choice < 0)
+                    if (item == currentListOfActs[i])
                     {
-                        Console.WriteLine("You dumbass. I will fuck you in your asshole, faggot. Because of you I need to do another test, nigga. I hate you. And now, be a good boy and write CORRECT VALUE.");
-                        choice = 1;
-                        continue;
+                        repeat = true;
+                    }
+                    else if (repeat == true)
+                    {
+
                     }
                     else
-                    {
-                        break;
-                    }
+                        repeat = false;
                 }
-                Console.Write("Write down new activity: ");
-                listOfActs[--choice] = Console.ReadLine();
-                Console.WriteLine("Is it over? 1 - yes, 2 - no");
-                string answer = Console.ReadLine();
-                bool isValidValue = true;
-                while (isValidValue)
+                repeatList.Add(currentListOfActs[i]);
+                if (repeat == false)
                 {
-                    if (int.TryParse(answer, out choice))
-                    {
-                        if (choice == 1)
-                        {
-                            isItOver = false;
-                            isValidValue = false;
-                        }
-                        else if (choice == 2)
-                        {
-                            isItOver = true;
-                            isValidValue = false;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Enter Correct value");
-                            answer = Console.ReadLine();
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Enter Correct value");
-                        answer = Console.ReadLine();
-                    }
-                }
-            }
-            user.StreamWrite(listOfActs);
-            Console.Clear();
-            int i = 1;
-            foreach (string act in listOfActs)
-            {
-                Console.WriteLine($"{i} - {act}");
-                i++;
-            }
-        }
-        internal static void AddAct(List<string> listOfActs, User user)
-        {
-            bool isItNotOver = true;
-            do
-            {
-                Console.Write("Write new activity: ");
-                using (var sw = new StreamWriter("User.txt"))
-                {
-                    string newAct = Console.ReadLine();
-                    listOfActs.Add(newAct);
-                    sw.WriteLine(newAct);
-                }
-                Console.WriteLine("Is it over? 1 - yes, 2 - no");
-                string answer = Console.ReadLine();
-                bool isValidValue = true;
-                while (isValidValue)
-                {
-                    if (int.TryParse(answer, out int choice))
-                    {
-                        if (choice == 1)
-                        {
-                            isItNotOver = false;
-                            isValidValue = false;
-                        }
-                        else if (choice == 2)
-                        {
-                            isItNotOver = true;
-                            isValidValue = false;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Enter Correct value");
-                            answer = Console.ReadLine();
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Enter Correct value");
-                        answer = Console.ReadLine();
-                    }
-                }
-            } while (isItNotOver);
-            user.StreamWrite(listOfActs);
-            Console.Clear();
-            int i = 1;
-            foreach (string act in listOfActs)
-            {
-                Console.WriteLine($"{i} - {act}");
-                i++;
-            }
-        }
-        private static int TryParse(string input)
-        {
-            int result = 0;
-            bool isValid = true;
-            do
-            {
-                if (!int.TryParse(input, out result))
-                {
-                    Console.WriteLine("Enter correct value");
-                    input = Console.ReadLine();
+                    Console.WriteLine($"By {currentListOfActs[i]} you have spent {Timer.listOfWatches[index].Elapsed:hh\\:mm\\:ss\\:ff}");
+                    index++;
                 }
                 else
                 {
-                    isValid = false;
+                    continue;
                 }
-            } while (isValid);
-            return result;
+            }
         }
     }
 }
